@@ -2,10 +2,33 @@
 #include <cstdlib>
 #include <cassert>
 #include "Fraction.hpp"
-bool Fraction::operator<( const Fraction &operand2 ) const {
-    
+unsigned long gcd( unsigned long operand1, unsigned long operand2){
+  int higher, lower, remainder;
+  higher = operand1 > operand2 ? operand1 : operand2;
+  lower  = operand1 < operand2 ? operand1 : operand2;
+  if ( lower == 0){
+  return 1;
+}
+  remainder = higher % lower;
+  while( remainder != 0){
+    higher = lower;
+    lower = remainder;
+    remainder = higher % lower;
+  }
+  return lower;
+}
 
-  //std::cout <<this->numerator*operand2.denominator << " ::"<< operand2.numerator*this->denominator << std::endl;
+unsigned long Fraction::reduce( ) {
+  int divisor = gcd( this->numerator, this->denominator);
+  this->numerator /= divisor;
+  this->denominator /=divisor;
+  if ( numerator == 0 ) {
+    sign = false;
+  }
+  return divisor;
+}
+
+bool Fraction::operator<( const Fraction &operand2 ) const {
   if ( !this->sign && operand2.sign ){
     return true;
   } else if ( this->sign && !operand2.sign) {
@@ -38,33 +61,35 @@ Fraction Fraction::operator-() const {
   return result;
 }
 Fraction Fraction::operator+( const Fraction &operand2) const{
+  Fraction result;
   if ( this->sign == operand2.sign ) {
-    Fraction result = Fraction( this->numerator*operand2.denominator + operand2.numerator*this->denominator, 
-				operand2.denominator*this->denominator);
+    result = Fraction( this->numerator*operand2.denominator + operand2.numerator*this->denominator, 
+		       operand2.denominator*this->denominator);
     result.sign = this->sign;
-    return result;
   } else if ( this->sign !=  operand2.sign){
     if ( !this->sign && -*this > operand2){
-      return -Fraction( this->numerator*operand2.denominator - operand2.numerator*this->denominator,
-			this->denominator*operand2.denominator);
+      result = -Fraction( this->numerator*operand2.denominator - operand2.numerator*this->denominator,
+			  this->denominator*operand2.denominator);
     } else if ( !this->sign ) {
-      return -Fraction( operand2.numerator*this->denominator - this->numerator*operand2.denominator, 
-			this->denominator*operand2.denominator);
+      result = -Fraction( operand2.numerator*this->denominator - this->numerator*operand2.denominator, 
+			  this->denominator*operand2.denominator);
     } else {
-      return -( operand2 + *this);
+      result = -( operand2 + *this);
     }
   }
-  std::cout << "Shit just got real!"<< std::endl;
-  assert(0);
+  result.reduce();
+  return result;
 }
 Fraction Fraction::operator*( const Fraction &operand2) const {
   Fraction result =  Fraction( this->numerator*operand2.numerator, this->denominator*operand2.denominator );
   result.sign = this->sign==operand2.sign;
+  result.reduce();
   return result;
 }
 Fraction Fraction::operator/(const Fraction &operand2)const{
   Fraction result =  *this*Fraction( operand2.denominator, operand2.numerator);
   result.sign = this->sign==operand2.sign;
+  result.reduce();
   return result;
 }
 Fraction &Fraction::operator+=( const Fraction &operand2){
@@ -84,14 +109,20 @@ Fraction &Fraction::operator/=( const Fraction &operand2){
   return *this;
 }
 Fraction Fraction::operator-( const Fraction &operand2) const {
-  return *this +( -operand2);
+  Fraction result = *this +( -operand2);
+  result.reduce();
+  return result;
 }
 Fraction Fraction::operator+() const {
   return *this;
 }
 Fraction::Fraction( unsigned long numerator, unsigned long denominator) : numerator(numerator), denominator(denominator), sign(true) {
 }
-
+Fraction::Fraction( ) {
+  sign = true;
+  numerator = 0;
+  denominator = 1;
+}
 
 std::ostream &operator<<( std::ostream &out, const Fraction &fraction){
   out << ( fraction.sign ? "":"(-" ) << fraction.numerator << "/" << fraction.denominator << ( fraction.sign ? "":")" ) ;

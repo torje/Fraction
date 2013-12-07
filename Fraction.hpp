@@ -7,6 +7,7 @@ public:
   unsigned long numerator;
   unsigned long denominator;
 public:  
+  unsigned long reduce ( );
   bool      operator<  ( const Fraction &operand2) const;
   bool      operator>  ( const Fraction &operand2) const;
   bool      operator== ( const Fraction &operand2) const;
@@ -20,7 +21,8 @@ public:
   Fraction &operator/= ( const Fraction &operand2);
   Fraction  operator+  ( )                         const; 
   Fraction  operator-  ( )                         const;
-  Fraction( unsigned long numerator, unsigned long denominator);
+  Fraction ( );
+  Fraction ( unsigned long numerator, unsigned long denominator);
 };
 
 std::ostream &operator<<( std::ostream &out, const Fraction &fraction);
