@@ -1,6 +1,3 @@
-#include <iostream>
-#include <cstdlib>
-#include <cassert>
 #include "Fraction.hpp"
 unsigned long gcd( unsigned long operand1, unsigned long operand2){
   int higher, lower, remainder;
